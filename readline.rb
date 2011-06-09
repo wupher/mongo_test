@@ -2,7 +2,27 @@
 require "rubygems"
 require "mongo"
 
-
+module MongoHelper
+  def get_conn(coll="track_log")
+    Mongo::Connection.new('localhost').db('test').collection(coll)
+  end
+  
+  def save(data)
+    get_conn.insert data
+  end
+  
+  def search(field, value)
+    get_conn.find({field => value})
+  end
+  
+  def coll_data_count(coll='track_log')
+    get_conn(coll).count
+  end
+  
+  def get_a_random_data()
+    get_conn.find_one
+  end
+end
 
 #从日志中读取记录并转换成hash
 def read_log_file(filename)
@@ -79,15 +99,16 @@ end
 
 # 50.times{insert_data_test}
 
-coll = get_conn
+# coll = get_conn
 # coll.create_index([["loc", Mongo::GEO2D]])
 # add_index('type')
 # add_index('device_no')
 # p coll.count
 # p coll.find("type" => {'$ne'  => '002'}).count
-results = coll.find({"loc" => {"$near" => [110,26], "$maxDistance" => 5}})
+# results = coll.find({"loc" => {"$near" => [110,26], "$maxDistance" => 5}})
 
-results.each{ |row| p row  }
-p results.count()
+# results.each{ |row| p row  }
+# p results.count()
 # p coll.count
-
+# p MongoHelper::coll_data_count
+p collections_count
