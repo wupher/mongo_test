@@ -38,13 +38,18 @@ module LogHelper
     result = []
     File.readlines(log_file).each do |line|
       contents = line.split("\003")
-      track = {:device_no  => contents[0][3..-1], :sim => contents[1], :type => contents[2].to_i, :GPS_time => time_trans2(contents[3]),
+      track = {:device_no  => contents[0][3..-1], :sim => contents[1], :type => contents[2].to_i, :GPS_time => time_trans1(contents[3]),
                :valid => contents[4], :loc => {:long => contents[5].to_f, :lat => contents[6].to_f}, :altitude => contents[7].to_f,
                :speed => contents[8].to_f, :navigation_course => contents[9].to_f, :KM => contents[10].to_f, :parameter => contents[11].to_f,
                :receive_time => time_trans2(contents[12])} if contents.size == 13
       result << track if track
     end
     result
+  end
+  
+  def time_trans1(time_str)
+    m = /(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)/.match(time_str.strip)
+    Time.gm(m[1], m[2], m[3], m[4], m[5], m[6]).utc if m
   end
   
   def time_trans2(time_str)
