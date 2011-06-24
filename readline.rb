@@ -38,7 +38,7 @@ module LogHelper
     result = []
     File.readlines(log_file).each do |line|
       contents = line.split("\003")
-      track = {:device_no  => contents[0][3..-1], :sim => contents[1], :type => contents[2].to_i, :GPS_time => time_trans1(contents[3]),
+      track = {:device_no  => (contents[0][3..-1]).to_i, :sim => contents[1], :type => contents[2].to_i, :GPS_time => time_trans1(contents[3]),
                :valid => contents[4], :loc => {:long => contents[5].to_f, :lat => contents[6].to_f}, :altitude => contents[7].to_f,
                :speed => contents[8].to_f, :navigation_course => contents[9].to_f, :KM => contents[10].to_f, :parameter => contents[11].to_f,
                :receive_time => time_trans2(contents[12])} if contents.size == 13
@@ -90,7 +90,7 @@ class MongoTest
 end
 
 #__main__
-test = MongoTest.new('/Users/fanwu/workspace/data/trck')
+test = MongoTest.new('/Users/fanwu/workspace/data/track')
 puts "before insert: #{test.count} data"
 test.insert_data
 # test.add_index('device_no')
