@@ -29,16 +29,14 @@ def gen_phone_list
 end
 
 #生成电话号码
-def generate_phone_number()
-  conn = Mongo::Connection.new('localhost').db('tracks').collection('phone_numbers')
+def generate_phone_number(conn)
   phone = conn.find_one("_id" => (rand(conn.count())))
   return generate_phone_number unless phone
   phone['phone']
 end
 
 #生成经纬度坐标
-def generate_gps_loc()
-  conn = Mongo::Connection.new('localhost').db('tracks').collection('loc')
+def generate_gps_loc(conn)
   loc = conn.find_one("_id" => (rand(conn.count())))
   return generate_gps_loc if loc.nil? or loc["loc"]["long"] == 0 or loc["loc"]["lat"] == 0 or 
   {:long => loc["loc"]["long"], :lat => loc["loc"]["lat"]}
@@ -46,9 +44,9 @@ end
 
 #生成轨迹数据
 #time_seed 用于将当前时间向后推迟一段，这样不会出现轨迹时间相同或者密集的情况
-def generate_track_log(time_seed)
-  device_no = generate_phone_number
-  loc = generate_gps_loc
+def generate_track_log(time_seed, conn_phone, conn_loc)
+  device_no = generate_phone_number(conn_phone)
+  loc = generate_gps_loc(conn_loc)
   gps_time = Time.now + time_seed
   type = 2
   valid = "A"
@@ -64,12 +62,15 @@ def generate_track_log(time_seed)
 end
 
 def gen_and_save_10Million_data()
+  
+  conn = Mongo::Connection.new('localhost').db('tracks').collection('test_tracks')
+  conn_phone = Mongo::Connection.new('localhost').db('tracks').collection('phone_numbers')
+  conn_loc = Mongo::Connection.new('localhost').db('tracks').collection('loc')
   (10000000).times do |i|
     tracks = []
-    tracks << generate_track_log(i*30)
+    tracks << generate_track_log(i*30, conn_phone, conn_loc)
     j = 1
     if tracks.size == 10000
-      conn = Mongo::Connection.new('localhost').db('tracks').collection('test_tracks')
       conn.insert tracks
       tracks.clear
       puts "插入了第#{j}个1万条数据"
@@ -78,4 +79,4 @@ def gen_and_save_10Million_data()
   end
 end
 
-generate_track_log(30)
+gen_and_save_10Million_data
