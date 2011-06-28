@@ -31,14 +31,13 @@ end
 #生成电话号码
 def generate_phone_number(conn)
   phone = conn.find_one("_id" => (rand(conn.count())))
-  return generate_phone_number(conn) unless phone
   phone['phone']
 end
 
 #生成经纬度坐标
 def generate_gps_loc(conn)
   loc = conn.find_one("_id" => (rand(conn.count())))
-  return generate_gps_loc(conn) if loc.nil? or loc["loc"]["long"] == 0 or loc["loc"]["lat"] == 0 or 
+  return generate_gps_loc(conn) if loc["loc"]["long"] == 0 or loc["loc"]["lat"] == 0
   {:long => loc["loc"]["long"], :lat => loc["loc"]["lat"]}
 end
 
@@ -62,18 +61,18 @@ def generate_track_log(time_seed, conn_phone, conn_loc)
 end
 
 def gen_and_save_10Million_data()
-  
   conn = Mongo::Connection.new('localhost').db('tracks').collection('test_tracks')
   conn_phone = Mongo::Connection.new('localhost').db('tracks').collection('phone_numbers')
   conn_loc = Mongo::Connection.new('localhost').db('tracks').collection('loc')
+  tracks = []
   (10000000).times do |i|
-    tracks = []
     tracks << generate_track_log(i*30, conn_phone, conn_loc)
     j = 1
-    if tracks.size == 10000
+    puts "there are #{tracks.size} data in stack"
+    if tracks.size == 1000
       conn.insert tracks
       tracks.clear
-      puts "插入了第#{j}个1万条数据"
+      puts "inserted the #{j}'s 10000 data"
       j+=1
     end
   end
