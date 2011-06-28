@@ -62,4 +62,13 @@ def generate_track_log(time_seed)
     :KM => km, :parameter => parameter, :recv_time => recv_time.utc, :type => type}
 end
 
-(10*1000).times{ p generate_track_log(22) }
+
+(1000*10000).times do |i|
+  tracks = []
+  tracks << generate_track_log(i*30)
+  if tracks.size == 1000
+    conn = Mongo::Connection.new('localhost').db('tracks').collection('test_tracks')
+    conn.insert tracks
+    tracks.clear
+  end
+end
