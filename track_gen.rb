@@ -31,14 +31,14 @@ end
 #生成电话号码
 def generate_phone_number(conn)
   phone = conn.find_one("_id" => (rand(conn.count())))
-  return generate_phone_number unless phone
+  return generate_phone_number(conn) unless phone
   phone['phone']
 end
 
 #生成经纬度坐标
 def generate_gps_loc(conn)
   loc = conn.find_one("_id" => (rand(conn.count())))
-  return generate_gps_loc if loc.nil? or loc["loc"]["long"] == 0 or loc["loc"]["lat"] == 0 or 
+  return generate_gps_loc(conn) if loc.nil? or loc["loc"]["long"] == 0 or loc["loc"]["lat"] == 0 or 
   {:long => loc["loc"]["long"], :lat => loc["loc"]["lat"]}
 end
 
