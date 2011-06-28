@@ -62,16 +62,19 @@ def generate_track_log(time_seed)
     :KM => km, :parameter => parameter, :recv_time => recv_time.utc, :type => type}
 end
 
-
-(1000*10000).times do |i|
-  tracks = []
-  tracks << generate_track_log(i*30)
-  j = 1
-  if tracks.size == 10000
-    conn = Mongo::Connection.new('localhost').db('tracks').collection('test_tracks')
-    conn.insert tracks
-    tracks.clear
-    puts "插入了第#{j}个1万条数据"
-    j+=1
+def gen_and_save_10Million_data()
+  (1000*10000).times do |i|
+    tracks = []
+    tracks << generate_track_log(i*30)
+    j = 1
+    if tracks.size == 10000
+      conn = Mongo::Connection.new('localhost').db('tracks').collection('test_tracks')
+      conn.insert tracks
+      tracks.clear
+      puts "插入了第#{j}个1万条数据"
+      j+=1
+    end
   end
 end
+
+generate_track_log(30)
