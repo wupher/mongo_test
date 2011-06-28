@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 require "rubygems"
 require "mongo"
 
@@ -31,15 +31,16 @@ end
 #生成电话号码
 def generate_phone_number()
   conn = Mongo::Connection.new('localhost').db('tracks').collection('phone_numbers')
-  phone = conn.find_one("_id" => (1 + rand(conn.count())))
+  phone = conn.find_one("_id" => (rand(conn.count())))
+  return generate_phone_number unless phone
   phone['phone']
 end
 
 #生成经纬度坐标
 def generate_gps_loc()
   conn = Mongo::Connection.new('localhost').db('tracks').collection('loc')
-  loc = conn.find_one("_id" => (1+ rand(conn.count())))
-  return generate_gps_loc if loc["loc"]["long"] == 0 or loc["loc"]["lat"] == 0
+  loc = conn.find_one("_id" => (rand(conn.count())))
+  return generate_gps_loc if loc.nil? or loc["loc"]["long"] == 0 or loc["loc"]["lat"] == 0 or 
   {:long => loc["loc"]["long"], :lat => loc["loc"]["lat"]}
 end
 
@@ -63,7 +64,7 @@ def generate_track_log(time_seed)
 end
 
 def gen_and_save_10Million_data()
-  (1000*10000).times do |i|
+  (10000000).times do |i|
     tracks = []
     tracks << generate_track_log(i*30)
     j = 1
