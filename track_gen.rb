@@ -34,6 +34,11 @@ def generate_phone_number(conn)
   phone['phone']
 end
 
+def generate_phone_number_by_calculation()
+  base_phone_number = 18905900000
+  return base_phone_number + rand(20000)
+end
+
 #生成经纬度坐标
 def generate_gps_loc(conn)
   loc = conn.find_one("_id" => (rand(conn.count())))
@@ -41,11 +46,35 @@ def generate_gps_loc(conn)
   {:long => loc["loc"]["long"], :lat => loc["loc"]["lat"]}
 end
 
+def generate_gps_loc_by_calculation()
+  base_lat, base_long = 24000000, 118000000
+  long = (base_long + rand(1000000)).fdiv 1000000
+  lat = (base_lat + rand(1000000)).fdiv 1000000
+  {:long => long, :lat => lat}
+end
+
 #生成轨迹数据
 #time_seed 用于将当前时间向后推迟一段，这样不会出现轨迹时间相同或者密集的情况
 def generate_track_log(time_seed, conn_phone, conn_loc)
   device_no = generate_phone_number(conn_phone)
   loc = generate_gps_loc(conn_loc)
+  gps_time = Time.now + time_seed
+  type = 2
+  valid = "A"
+  altitude = 38
+  speed = rand(150)
+  navigation_course = 0
+  km = rand(10000)
+  parameter = 1031
+  recv_time = gps_time + 5
+  {:device_no => device_no, :loc => loc, :GPS_time => gps_time.utc, :valid => valid,
+    :altitude => altitude, :speed => speed, :navigation_course => navigation_course,
+    :KM => km, :parameter => parameter, :recv_time => recv_time.utc, :type => type}
+end
+
+def generate_track_log_by_calculation(time_seed)
+  device_no = generate_phone_number_by_calculation
+  loc = generate_gps_loc_by_calculation
   gps_time = Time.now + time_seed
   type = 2
   valid = "A"
@@ -68,7 +97,6 @@ def gen_and_save_10Million_data()
   (10000000).times do |i|
     tracks << generate_track_log(i*30, conn_phone, conn_loc)
     j = 1
-    puts "there are #{tracks.size} data in stack"
     if tracks.size == 1000
       conn.insert tracks
       tracks.clear
@@ -78,4 +106,19 @@ def gen_and_save_10Million_data()
   end
 end
 
-gen_and_save_10Million_data
+def gen_save_100_milllion_data_by_calculation()
+  conn = Mongo::Connection.new('localhost').db('big_tracks').collection('big_tracks')
+  tracks = []
+  j = 1
+  (10000 * 10000).times do |i|
+    tracks << generate_track_log_by_calculation(i*30)
+    if tracks.size == 10000
+      conn.insert tracks
+      tracks.clear
+      puts "--------------#{j}-------------"
+      j += 1
+    end
+  end
+end
+
+gen_save_100_milllion_data_by_calculation()
