@@ -72,6 +72,7 @@ def generate_track_log(time_seed, conn_phone, conn_loc)
     :KM => km, :parameter => parameter, :recv_time => recv_time.utc, :type => type}
 end
 
+#通过计算的方式生成轨迹数据
 def generate_track_log_by_calculation(time_seed)
   device_no = generate_phone_number_by_calculation
   loc = generate_gps_loc_by_calculation
@@ -121,4 +122,9 @@ def gen_save_100_milllion_data_by_calculation()
   end
 end
 
-gen_save_100_milllion_data_by_calculation()
+# gen_save_100_milllion_data_by_calculation()
+# pool = []
+# 1000.times do |i|
+  # pool << generate_track_log_by_calculation(i*30)
+# end
+# p pool.size
